@@ -1,12 +1,8 @@
--- return
-
---- config ---
+local _, dt = ...
+local C, L = unpack(dt)
 
 local dmgTime = 3
 local dmgTimeStep = 0.5
-
---- end of config ---
-local C = {}
 
 --Use [GUID] = {[time] = healthlost, nstart = x, nend = y}
 local healthChangeTbl = {}
@@ -78,7 +74,7 @@ timeFrmae:SetScript("OnUpdate", function(self,elapsed)
 		self.elapsed2 = 0
 	end
 	if self.elapsed3 >= 0.1 then
-		C.UpdateTimer()
+		C:UpdateText()
 		self.elapsed3 = 0
 	end
 end)
@@ -95,7 +91,6 @@ CLEUFrame:SetScript("OnEvent", function()
 		recordCLEU(destGUID, 1, arg4, timestamp)
 	end
 end)
-CLEUFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 
 local function GetDeathTime()
 	local guid = UnitGUID("target")
@@ -110,17 +105,59 @@ local function GetDeathTime()
 end
 
 local eventFrame = CreateFrame("Frame")
-eventFrame:SetScript("OnEvent", GetDeathTime)
+eventFrame:SetScript("OnEvent", C.UpdateText)
 eventFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
 
-local frame = CreateFrame("Frame",nil,UIParent)
-frame:SetPoint("CENTER",200,-200)
+-- Mover
+C.mover = {}
+local function moverLock(_,button)
+	if button == "RightButton" then
+		for f,m in pairs(C.mover) do
+			m:Hide()
+			C.db.mover[f:GetName()]={"BOTTOMLEFT", m:GetLeft(), m:GetBottom()}
+		end
+	end
+end
+
+local mover = CreateFrame("Frame", nil, UIParent)
+mover:Hide()
+mover:SetSize(150,25)
+mover:RegisterForDrag("LeftButton")
+mover:SetScript("OnDragStart", mover.StartMoving)
+mover:SetScript("OnDragStop", mover.StopMovingOrSizing)
+mover:SetScript("OnMouseDown",moverLock)
+mover:SetMovable(true)
+mover:EnableMouse(true)
+local moverTexture = mover:CreateTexture(nil, "BACKGROUND")
+moverTexture:SetColorTexture(1, 1, 0, 0.5)
+moverTexture:SetAllPoints(true)
+local moverText = mover:CreateFontString(nil,"ARTWORK","GameFontHighlightLarge")
+moverText:SetPoint("CENTER", mover, "CENTER")
+moverText:SetText("DTFrame")
+local frame = CreateFrame("Frame","DeathTimerFrame",UIParent)
 frame:SetSize(150,25)
+frame:SetAllPoints(mover)
 local text = frame:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
 local textFont = text:GetFont()
 text:SetFont(textFont, 15)
 text:SetAllPoints(frame)
+frame.text = text
+C.mover[frame] = mover
 
-function C.UpdateTimer()
+function C:SetFrames()
+	local font, fontSize = LibStub("LibSharedMedia-3.0"):Fetch("font",self.db.font), self.db.fontSize
+	for frame,mover in pairs(self.mover) do
+		frame.text:SetFont(font, fontSize, "OUTLINE")
+		mover:ClearAllPoints()
+		mover:SetPoint(unpack(self.db.mover[frame:GetName()]))
+	end
+end
+
+function C:UpdateText()
 	text:SetText(GetDeathTime())
 end
+
+dt:AddInitFunc(function()
+	C:SetFrames()
+	CLEUFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+end)
