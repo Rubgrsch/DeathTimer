@@ -7,5 +7,6 @@
 libs\libs.xml
 
 init.lua
+locales\locales.xml
 config.lua
 core.lua
