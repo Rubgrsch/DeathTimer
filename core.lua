@@ -45,7 +45,7 @@ local function wipeTbl(parentTbl,idx)
 	reuseTbl[t] = true
 end
 
-local function recordCLEU(guid, dirc, amount, timestamp)
+local function recordCLEU(guid, dirc, amount)
 	tobeAddedTbl[guid] = (tobeAddedTbl[guid] or 0) + dirc*amount
 	donotWipeTbl[guid] = true
 end
@@ -81,14 +81,14 @@ end)
 
 local CLEUFrame = CreateFrame("Frame")
 CLEUFrame:SetScript("OnEvent", function()
-	local timestamp, Event, _, sourceGUID, _, sourceFlags, _, destGUID, destName, destFlags, _, arg1, arg2, arg3, arg4, arg5, arg6, arg7, _, _, arg10 = CombatLogGetCurrentEventInfo()
+	local _, Event, _, _, _, _, _, destGUID, _, destFlags, _, arg1, _, _, arg4 = CombatLogGetCurrentEventInfo()
 	if bit.band(destFlags,bit.bor(COMBATLOG_OBJECT_AFFILIATION_OUTSIDER, COMBATLOG_OBJECT_REACTION_NEUTRAL, COMBATLOG_OBJECT_REACTION_HOSTILE, COMBATLOG_OBJECT_CONTROL_NPC, COMBATLOG_OBJECT_TYPE_NPC)) <= 0 then return end
 	if Event == "SWING_DAMAGE" then
-		recordCLEU(destGUID, -1, arg1, timestamp)
+		recordCLEU(destGUID, -1, arg1)
 	elseif Event == "SPELL_DAMAGE" or Event == "RANGE_DAMAGE" or Event == "SPELL_PERIODIC_DAMAGE" then
-		recordCLEU(destGUID, -1, arg4, timestamp)
+		recordCLEU(destGUID, -1, arg4)
 	elseif Event == "SPELL_HEAL" or Event == "SPELL_PERIODIC_HEAL" then
-		recordCLEU(destGUID, 1, arg4, timestamp)
+		recordCLEU(destGUID, 1, arg4)
 	end
 end)
 
@@ -119,30 +119,30 @@ local function moverLock(_,button)
 	end
 end
 
-local mover = CreateFrame("Frame", nil, UIParent)
-mover:Hide()
-mover:SetSize(150,25)
-mover:RegisterForDrag("LeftButton")
-mover:SetScript("OnDragStart", mover.StartMoving)
-mover:SetScript("OnDragStop", mover.StopMovingOrSizing)
-mover:SetScript("OnMouseDown",moverLock)
-mover:SetMovable(true)
-mover:EnableMouse(true)
-local moverTexture = mover:CreateTexture(nil, "BACKGROUND")
+local timerMover = CreateFrame("Frame", nil, UIParent)
+timerMover:Hide()
+timerMover:SetSize(150,25)
+timerMover:RegisterForDrag("LeftButton")
+timerMover:SetScript("OnDragStart", timerMover.StartMoving)
+timerMover:SetScript("OnDragStop", timerMover.StopMovingOrSizing)
+timerMover:SetScript("OnMouseDown",moverLock)
+timerMover:SetMovable(true)
+timerMover:EnableMouse(true)
+local moverTexture = timerMover:CreateTexture(nil, "BACKGROUND")
 moverTexture:SetColorTexture(1, 1, 0, 0.5)
 moverTexture:SetAllPoints(true)
-local moverText = mover:CreateFontString(nil,"ARTWORK","GameFontHighlightLarge")
-moverText:SetPoint("CENTER", mover, "CENTER")
+local moverText = timerMover:CreateFontString(nil,"ARTWORK","GameFontHighlightLarge")
+moverText:SetPoint("CENTER", timerMover, "CENTER")
 moverText:SetText(L["DTFrame"])
-local frame = CreateFrame("Frame","DeathTimerFrame",UIParent)
-frame:SetSize(150,25)
-frame:SetAllPoints(mover)
-local text = frame:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+local timerFrame = CreateFrame("Frame","DeathTimerFrame",UIParent)
+timerFrame:SetSize(150,25)
+timerFrame:SetAllPoints(timerMover)
+local text = timerFrame:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
 local textFont = text:GetFont()
 text:SetFont(textFont, 15)
-text:SetAllPoints(frame)
-frame.text = text
-C.mover[frame] = mover
+text:SetAllPoints(timerFrame)
+timerFrame.text = text
+C.mover[timerFrame] = timerMover
 
 function C:SetFrames()
 	local font, fontSize = LibStub("LibSharedMedia-3.0"):Fetch("font",self.db.font), self.db.fontSize
