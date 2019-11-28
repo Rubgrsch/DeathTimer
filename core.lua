@@ -79,16 +79,20 @@ timeFrmae:SetScript("OnUpdate", function(self,elapsed)
 	end
 end)
 
+local mask_outsider_npc_npc = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MASK, COMBATLOG_OBJECT_CONTROL_MASK, COMBATLOG_OBJECT_TYPE_MASK)
+local flag_outsider_npc_npc = bit.bor(COMBATLOG_OBJECT_AFFILIATION_OUTSIDER,COMBATLOG_OBJECT_CONTROL_NPC,COMBATLOG_OBJECT_TYPE_NPC)
+local flag_hostile_neutral = bit.bor(COMBATLOG_OBJECT_REACTION_HOSTILE, COMBATLOG_OBJECT_REACTION_NEUTRAL)
+
 local CLEUFrame = CreateFrame("Frame")
 CLEUFrame:SetScript("OnEvent", function()
 	local _, Event, _, _, _, _, _, destGUID, _, destFlags, _, arg1, _, _, arg4 = CombatLogGetCurrentEventInfo()
-	if bit.band(destFlags,bit.bor(COMBATLOG_OBJECT_AFFILIATION_OUTSIDER, COMBATLOG_OBJECT_REACTION_NEUTRAL, COMBATLOG_OBJECT_REACTION_HOSTILE, COMBATLOG_OBJECT_CONTROL_NPC, COMBATLOG_OBJECT_TYPE_NPC)) <= 0 then return end
+	if not (bit.bxor(bit.band(destFlags, mask_outsider_npc_npc), flag_outsider_npc_npc) == 0 and bit.band(destFlags, flag_hostile_neutral) > 0) then return end
 	if Event == "SWING_DAMAGE" then
-		recordCLEU(destGUID, -1, arg1)
+		recordCLEU(destGUID, -arg1)
 	elseif Event == "SPELL_DAMAGE" or Event == "RANGE_DAMAGE" or Event == "SPELL_PERIODIC_DAMAGE" then
-		recordCLEU(destGUID, -1, arg4)
+		recordCLEU(destGUID, -arg4)
 	elseif Event == "SPELL_HEAL" or Event == "SPELL_PERIODIC_HEAL" then
-		recordCLEU(destGUID, 1, arg4)
+		recordCLEU(destGUID, arg4)
 	end
 end)
 
