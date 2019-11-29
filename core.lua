@@ -4,6 +4,8 @@ local C, L = unpack(dt)
 local dmgTime = 3
 local dmgTimeStep = 0.5
 
+local band, CombatLogGetCurrentEventInfo, ipairs, next, pairs, UnitGUID, UnitHealth = bit.band, CombatLogGetCurrentEventInfo, ipairs, next, pairs, UnitGUID, UnitHealth
+
 --Use [GUID] = {[time] = healthlost, nstart = x, nend = y}
 local healthChangeTbl = {}
 
@@ -45,14 +47,14 @@ local function wipeTbl(parentTbl,idx)
 	reuseTbl[t] = true
 end
 
-local function recordCLEU(guid, dirc, amount)
-	tobeAddedTbl[guid] = (tobeAddedTbl[guid] or 0) + dirc*amount
+local function recordCLEU(guid, amount) -- amount: < 0 for damage; > 0 for heal
+	tobeAddedTbl[guid] = (tobeAddedTbl[guid] or 0) + amount
 	donotWipeTbl[guid] = true
 end
 
-local timeFrmae = CreateFrame("Frame")
-timeFrmae.elapsed1, timeFrmae.elapsed2, timeFrmae.elapsed3 = 0, 0, 0
-timeFrmae:SetScript("OnUpdate", function(self,elapsed)
+local timeFrame = CreateFrame("Frame")
+timeFrame.elapsed1, timeFrame.elapsed2, timeFrame.elapsed3 = 0, 0, 0
+timeFrame:SetScript("OnUpdate", function(self,elapsed)
 	self.elapsed1 = self.elapsed1 + elapsed
 	self.elapsed2 = self.elapsed2 + elapsed
 	self.elapsed3 = self.elapsed3 + elapsed
@@ -86,7 +88,7 @@ local flag_hostile_neutral = bit.bor(COMBATLOG_OBJECT_REACTION_HOSTILE, COMBATLO
 local CLEUFrame = CreateFrame("Frame")
 CLEUFrame:SetScript("OnEvent", function()
 	local _, Event, _, _, _, _, _, destGUID, _, destFlags, _, arg1, _, _, arg4 = CombatLogGetCurrentEventInfo()
-	if not (bit.bxor(bit.band(destFlags, mask_outsider_npc_npc), flag_outsider_npc_npc) == 0 and bit.band(destFlags, flag_hostile_neutral) > 0) then return end
+	if not (band(destFlags, mask_outsider_npc_npc) == flag_outsider_npc_npc and band(destFlags, flag_hostile_neutral) > 0) then return end
 	if Event == "SWING_DAMAGE" then
 		recordCLEU(destGUID, -arg1)
 	elseif Event == "SPELL_DAMAGE" or Event == "RANGE_DAMAGE" or Event == "SPELL_PERIODIC_DAMAGE" then
