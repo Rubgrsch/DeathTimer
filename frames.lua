@@ -56,6 +56,7 @@ function C:SetFrames()
 		mover:ClearAllPoints()
 		mover:SetPoint(unpack(self.db.mover[frame:GetName()]))
 	end
+	if C.db.targetFrame then DeathTimerFrame:Show() else DeathTimerFrame:Hide() end
 end
 
 function C:UpdateText()

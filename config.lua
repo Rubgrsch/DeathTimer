@@ -205,7 +205,11 @@ titleText:SetPoint("TOPLEFT", configFrame, "TOPLEFT", 200, -20)
 titleText:SetText(addonName.." "..GetAddOnMetadata(addonName, "Version"))
 
 dt:AddInitFunc(function()
-	newCheckBox("targetFrame", L["enableTargetFrame"], L["enableTargetFrameTooltips"], {"TOPLEFT", configFrame, "TOPLEFT", 16, -60})
+	newCheckBox("targetFrame", L["enableTargetFrame"], L["enableTargetFrameTooltips"], {"TOPLEFT", configFrame, "TOPLEFT", 16, -60},
+		function(checked)
+			C.db.targetFrame = checked
+			C:SetFrames()
+		end)
 	newDropdown("font",L["font"],-1,LSM:List("font"),
 		function(chosen)
 			C.db.font = chosen
