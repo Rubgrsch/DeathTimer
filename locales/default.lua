@@ -3,6 +3,8 @@ local _, L = unpack(dt)
 
 if next(L) then return end
 
+L["enableTargetFrame"] = "Enable Target Frame"
+L["enableTargetFrameTooltips"] = "Show death time for target"
 L["font"] = "Font"
 L["fontSize"] = "Font Size"
 L["mover"] = "Mover"

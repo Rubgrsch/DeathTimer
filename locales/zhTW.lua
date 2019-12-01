@@ -3,6 +3,8 @@ local _, L = unpack(dt)
 
 if GetLocale() ~= "zhTW" then return end
 
+L["enableTargetFrame"] = "启用目标框架"
+L["enableTargetFrameTooltips"] = "为目标显示死亡预估时间"
 L["font"] = "字型"
 L["fontSize"] = "字型大小"
 L["mover"] = "調整位置"

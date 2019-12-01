@@ -7,6 +7,7 @@ local PlaySound = PlaySound
 local LSM = LibStub("LibSharedMedia-3.0")
 
 local defaults = {
+	["targetFrame"] = true,
 	["fontSize"] = 14,
 	["font"] = LSM:List("font")[1],
 	["mover"] = {
@@ -204,7 +205,8 @@ titleText:SetPoint("TOPLEFT", configFrame, "TOPLEFT", 200, -20)
 titleText:SetText(addonName.." "..GetAddOnMetadata(addonName, "Version"))
 
 dt:AddInitFunc(function()
-	newDropdown("font",L["font"],{"TOPLEFT", configFrame, "TOPLEFT", 16, -60},LSM:List("font"),
+	newCheckBox("targetFrame", L["enableTargetFrame"], L["enableTargetFrameTooltips"], {"TOPLEFT", configFrame, "TOPLEFT", 16, -60})
+	newDropdown("font",L["font"],-1,LSM:List("font"),
 		function(chosen)
 			C.db.font = chosen
 			C:SetFrames()
