@@ -3,6 +3,8 @@ dt[1] = {} -- Config
 dt[2] = {} -- Locales
 local _, L = unpack(dt)
 
+_G.DeathTimer = dt
+
 setmetatable(L, {__index=function(_, key) return key end})
 
 local init = {}

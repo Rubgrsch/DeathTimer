@@ -10,3 +10,4 @@ init.lua
 locales\locales.xml
 config.lua
 core.lua
+frames.lua
