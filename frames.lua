@@ -1,5 +1,5 @@
 local _, dt = ...
-local C, L = unpack(dt)
+local C, L, G = unpack(dt)
 
 local eventFrame = CreateFrame("Frame")
 eventFrame.elapsed = 0
@@ -60,7 +60,7 @@ function C:SetFrames()
 end
 
 function C:UpdateText()
-	local time = dt.GetDeathTime()
+	local time = G.GetDeathTime()
 	text:SetText(time and format("%.1f",time), "")
 end
 
