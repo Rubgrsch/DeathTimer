@@ -1,9 +1,10 @@
 local _, dt = ...
 dt[1] = {} -- Config
 dt[2] = {} -- Locales
+dt[3] = {} -- Globals
 local _, L = unpack(dt)
 
-_G.DeathTimer = dt
+_G.DeathTimer = dt[3]
 
 setmetatable(L, {__index=function(_, key) return key end})
 

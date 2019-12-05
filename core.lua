@@ -1,5 +1,5 @@
 local _, dt = ...
-local C, L = unpack(dt)
+local C, L, G = unpack(dt)
 
 local dmgTime = 3
 local dmgTimeStep = 0.5
@@ -91,8 +91,8 @@ eventFrame:SetScript("OnEvent", function()
 	end
 end)
 
-local function GetDeathTime(guid)
-	guid = guid or UnitGUID("target")
+local function GetDeathTime()
+	local guid = UnitGUID("target")
 	if not guid or not healthChangeTbl[guid] then return end
 	local sum = 0
 	for _, change in ipairs(healthChangeTbl[guid]) do
@@ -102,7 +102,7 @@ local function GetDeathTime(guid)
 	if time <= 0 then return
 	else return time end
 end
-dt.GetDeathTime = GetDeathTime
+G.GetDeathTime = GetDeathTime
 
 dt:AddInitFunc(function()
 	eventFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
