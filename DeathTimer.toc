@@ -1,6 +1,6 @@
-## Interface:80205
+## Interface: 80205
 ## Title: DeathTimer
-## Version: v0.1
+## Version: v1
 ## Author: Rubgrsch
 ## SavedVariables: deathTimerDB
 
