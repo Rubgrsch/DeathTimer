@@ -13,6 +13,9 @@ local defaults = {
 	["mover"] = {
 		DeathTimerFrame = {"CENTER",200,-200},
 	},
+	["ElvUINP_enabled"] = true,
+	["ElvUINP_font"] = LSM:List("font")[1],
+	["ElvUINP_fontSize"] = 13,
 }
 
 local function copyTable(source,dest)
@@ -227,4 +230,9 @@ dt:AddInitFunc(function()
 			for _,mover in pairs(C.mover) do mover:Show() end
 			print(L["moverMsg"])
 		end)
+	if ElvUI and ElvUI[1].private.nameplates.enable then
+		newCheckBox("ElvUINP_enabled", L["ElvUINP_enabled"], L["ElvUINP_enabledTooltips"], -1)
+		newDropdown("ElvUINP_font",L["ElvUINP_font"],-1,LSM:List("font"),nil,true)
+		newSlider("ElvUINP_fontSize", L["ElvUINP_fontSize"], nil, 9, 30, 1, 1)
+	end
 end)
