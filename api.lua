@@ -1,8 +1,7 @@
 -- APIs for other addons
 --
--- [BUGGED] DeathTimer.GetDeathTime([guid])
+DeathTimer.GetDeathTime([unit])
 --
--- Return estimate death time (in seconds) for target or given guid; 
+-- Return estimate death time (in seconds) for given unit (target if not given).
 -- Return nil if estimate time <= 0 or data not available.
--- Recalculated once per 0.1s.
--- 
+--
