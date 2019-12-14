@@ -3,6 +3,7 @@
 ## Version: v1
 ## Author: Rubgrsch
 ## SavedVariables: deathTimerDB
+## OptionalDeps: ElvUI
 
 libs\libs.xml
 
@@ -11,3 +12,4 @@ locales\locales.xml
 config.lua
 core.lua
 frames.lua
+ouf.lua

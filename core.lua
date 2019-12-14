@@ -91,14 +91,15 @@ eventFrame:SetScript("OnEvent", function()
 	end
 end)
 
-local function GetDeathTime()
-	local guid = UnitGUID("target")
+local function GetDeathTime(unit)
+	if not unit then unit = "target" end
+	local guid, health = UnitGUID(unit), UnitHealth(unit)
 	if not guid or not healthChangeTbl[guid] then return end
 	local sum = 0
 	for _, change in ipairs(healthChangeTbl[guid]) do
 		sum = sum + change
 	end
-	local time = UnitHealth("target")/(- sum / dmgTime)
+	local time = health/(- sum / dmgTime)
 	if time <= 0 then return
 	else return time end
 end

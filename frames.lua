@@ -61,7 +61,7 @@ end
 
 function C:UpdateText()
 	local time = G.GetDeathTime()
-	text:SetText(time and format("%.1f",time), "")
+	text:SetText(time and format("%.1f",time) or "")
 end
 
 dt:AddInitFunc(function()
