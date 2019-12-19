@@ -1,9 +1,6 @@
 local _, dt = ...
 local C, L, G = unpack(dt)
 
-local dmgTime = 3
-local dmgTimeStep = 0.5
-
 local band, CombatLogGetCurrentEventInfo, ipairs, next, pairs, UnitGUID, UnitHealth = bit.band, CombatLogGetCurrentEventInfo, ipairs, next, pairs, UnitGUID, UnitHealth
 
 --Use [GUID] = {[time] = healthlost, nstart = x, nend = y}
@@ -12,21 +9,6 @@ local healthChangeTbl = {}
 local tobeAddedTbl = {}
 local donotWipeTbl = {}
 local reuseTbl = {}
-
-local steps = math.ceil(dmgTime / dmgTimeStep)
--- 3 seconds max, start from x to 3 then from 0 to x-0.5
--- return cur (== new nend), new nstart
-local function GetCur(guid)
-	if not healthChangeTbl[guid].nstart then return 1, 1
-	-- when not full, add one more and keep start at 1
-	elseif healthChangeTbl[guid].nstart == 1 and healthChangeTbl[guid].nend < steps then return healthChangeTbl[guid].nend+1, 1
-	else
-		local a,b = healthChangeTbl[guid].nend+1, healthChangeTbl[guid].nend+2
-		if a > steps then a = a-steps end
-		if b > steps then b = b-steps end
-		return a, b
-	end
-end
 
 -- Tbl pool to recycle
 local function newHealthTbl()
@@ -49,7 +31,6 @@ end
 
 local function recordCLEU(guid, amount) -- amount: < 0 for damage; > 0 for heal
 	tobeAddedTbl[guid] = (tobeAddedTbl[guid] or 0) + amount
-	donotWipeTbl[guid] = true
 end
 
 local mask_outsider_npc_npc = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MASK, COMBATLOG_OBJECT_CONTROL_MASK, COMBATLOG_OBJECT_TYPE_MASK)
@@ -61,13 +42,27 @@ eventFrame.elapsed1, eventFrame.elapsed2 = 0, 0
 eventFrame:SetScript("OnUpdate", function(self,elapsed)
 	self.elapsed1 = self.elapsed1 + elapsed
 	self.elapsed2 = self.elapsed2 + elapsed
-	if self.elapsed1 >= dmgTimeStep then
+	if self.elapsed1 >= 0.5 then
 		for guid, healthChange in pairs(tobeAddedTbl) do
 			if not healthChangeTbl[guid] then healthChangeTbl[guid] = newHealthTbl() end
-			local cur, new_nstart = GetCur(guid)
-			healthChangeTbl[guid][cur] = healthChange
-			healthChangeTbl[guid].nstart = new_nstart
-			healthChangeTbl[guid].nend = cur
+			local t = healthChangeTbl[guid]
+
+			-- 3 seconds max, start from x to 3 then from 0 to x-0.5
+			-- return cur (== new nend), new nstart
+			local cur, new_nstart
+			if not t.nstart then cur, new_nstart = 1, 1
+			-- when not full, add one more and keep start at 1
+			elseif t.nstart == 1 and t.nend < 6 then cur, new_nstart = t.nend+1, 1
+			else
+				cur,new_nstart = t.nend+1, t.nend+2
+				if cur > 6 then cur = cur-6 end
+				if new_nstart > 6 then new_nstart = new_nstart-6 end
+			end
+
+			t[cur] = healthChange
+			t.nstart = new_nstart
+			t.nend = cur
+			if healthChange ~= 0 then donotWipeTbl[guid] = true end
 			tobeAddedTbl[guid] = 0
 		end
 		self.elapsed1 = 0
@@ -91,7 +86,7 @@ eventFrame:SetScript("OnEvent", function()
 	end
 end)
 
-local function GetDeathTime(unit)
+function G.GetDeathTime(unit)
 	if not unit then unit = "target" end
 	local guid, health = UnitGUID(unit), UnitHealth(unit)
 	if not guid or not healthChangeTbl[guid] then return end
@@ -99,11 +94,10 @@ local function GetDeathTime(unit)
 	for _, change in ipairs(healthChangeTbl[guid]) do
 		sum = sum + change
 	end
-	local time = health/(- sum / dmgTime)
+	local time = health/(- sum / 3)
 	if time <= 0 then return
 	else return time end
 end
-G.GetDeathTime = GetDeathTime
 
 dt:AddInitFunc(function()
 	eventFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
