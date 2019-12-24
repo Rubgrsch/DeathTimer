@@ -3,7 +3,7 @@ local C, L, G = unpack(dt)
 
 local band, CombatLogGetCurrentEventInfo, ipairs, next, pairs, UnitGUID, UnitHealth = bit.band, CombatLogGetCurrentEventInfo, ipairs, next, pairs, UnitGUID, UnitHealth
 
---Use [GUID] = {[time] = healthlost, nstart = x, nend = y}
+--Use [GUID] = {[time] = healthlost, cur = next_cur}
 local healthChangeTbl = {}
 
 local tobeAddedTbl = {}
@@ -11,7 +11,7 @@ local donotWipeTbl = {}
 local reuseTbl = {}
 
 -- Tbl pool to recycle
-local function newHealthTbl()
+local function NewHealthTbl()
 	local t = next(reuseTbl)
 	if t then
 		reuseTbl[t] = nil
@@ -21,16 +21,12 @@ local function newHealthTbl()
 	end
 end
 
-local function wipeTbl(parentTbl,idx)
+local function WipeTbl(parentTbl,idx)
 	local t = parentTbl[idx]
 	if not t then return end
 	parentTbl[idx] = nil
 	for k in pairs(t) do t[k] = nil end
 	reuseTbl[t] = true
-end
-
-local function recordCLEU(guid, amount) -- amount: < 0 for damage; > 0 for heal
-	tobeAddedTbl[guid] = (tobeAddedTbl[guid] or 0) + amount
 end
 
 local mask_outsider_npc_npc = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MASK, COMBATLOG_OBJECT_CONTROL_MASK, COMBATLOG_OBJECT_TYPE_MASK)
@@ -44,24 +40,20 @@ eventFrame:SetScript("OnUpdate", function(self,elapsed)
 	self.elapsed2 = self.elapsed2 + elapsed
 	if self.elapsed1 >= 0.5 then
 		for guid, healthChange in pairs(tobeAddedTbl) do
-			if not healthChangeTbl[guid] then healthChangeTbl[guid] = newHealthTbl() end
+			if not healthChangeTbl[guid] then healthChangeTbl[guid] = NewHealthTbl() end
 			local t = healthChangeTbl[guid]
 
 			-- 3 seconds max, start from x to 3 then from 0 to x-0.5
-			-- return cur (== new nend), new nstart
-			local cur, new_nstart
-			if not t.nstart then cur, new_nstart = 1, 1
+			local cur
+			if not t.cur then cur = 1
 			-- when not full, add one more and keep start at 1
-			elseif t.nstart == 1 and t.nend < 6 then cur, new_nstart = t.nend+1, 1
 			else
-				cur,new_nstart = t.nend+1, t.nend+2
+				cur = t.cur+1
 				if cur > 6 then cur = cur-6 end
-				if new_nstart > 6 then new_nstart = new_nstart-6 end
 			end
 
 			t[cur] = healthChange
-			t.nstart = new_nstart
-			t.nend = cur
+			t.cur = cur
 			if healthChange ~= 0 then donotWipeTbl[guid] = true end
 			tobeAddedTbl[guid] = 0
 		end
@@ -69,7 +61,7 @@ eventFrame:SetScript("OnUpdate", function(self,elapsed)
 	end
 	if self.elapsed2 >= 10 then
 		for guid in pairs(tobeAddedTbl) do if not donotWipeTbl[guid] then tobeAddedTbl[guid] = nil end end
-		for guid in pairs(healthChangeTbl) do if not donotWipeTbl[guid] then wipeTbl(healthChangeTbl,guid) end end
+		for guid in pairs(healthChangeTbl) do if not donotWipeTbl[guid] then WipeTbl(healthChangeTbl,guid) end end
 		for guid in pairs(donotWipeTbl) do donotWipeTbl[guid] = nil end
 		self.elapsed2 = 0
 	end
@@ -78,11 +70,11 @@ eventFrame:SetScript("OnEvent", function()
 	local _, Event, _, _, _, _, _, destGUID, _, destFlags, _, arg1, _, _, arg4 = CombatLogGetCurrentEventInfo()
 	if not (band(destFlags, mask_outsider_npc_npc) == flag_outsider_npc_npc and band(destFlags, flag_hostile_neutral) > 0) then return end
 	if Event == "SWING_DAMAGE" then
-		recordCLEU(destGUID, -arg1)
+		tobeAddedTbl[destGUID] = (tobeAddedTbl[destGUID] or 0) - arg1
 	elseif Event == "SPELL_DAMAGE" or Event == "RANGE_DAMAGE" or Event == "SPELL_PERIODIC_DAMAGE" then
-		recordCLEU(destGUID, -arg4)
+		tobeAddedTbl[destGUID] = (tobeAddedTbl[destGUID] or 0) - arg4
 	elseif Event == "SPELL_HEAL" or Event == "SPELL_PERIODIC_HEAL" then
-		recordCLEU(destGUID, arg4)
+		tobeAddedTbl[destGUID] = (tobeAddedTbl[destGUID] or 0) + arg4
 	end
 end)
 
