@@ -211,17 +211,17 @@ dt:AddInitFunc(function()
 	newCheckBox("targetFrame", L["enableTargetFrame"], L["enableTargetFrameTooltips"], {"TOPLEFT", configFrame, "TOPLEFT", 16, -60},
 		function(checked)
 			C.db.targetFrame = checked
-			C:SetFrames()
+			C:SetTargetFrame()
 		end)
 	newDropdown("font",L["font"],-1,LSM:List("font"),
 		function(chosen)
 			C.db.font = chosen
-			C:SetFrames()
+			C:SetTargetFrame()
 		end,true)
 	newSlider("fontSize", L["fontSize"], nil, 9, 30, 1, 1,
 		function(value)
 			C.db.fontSize = value
-			C:SetFrames()
+			C:SetTargetFrame()
 		end)
 	newButton(L["mover"], L["moverTooltip"], 1,
 		function()
