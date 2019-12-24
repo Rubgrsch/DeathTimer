@@ -1,6 +1,6 @@
 ## Interface: 80205
 ## Title: DeathTimer
-## Version: v2
+## Version: v3
 ## Author: Rubgrsch
 ## SavedVariables: deathTimerDB
 ## OptionalDeps: ElvUI
