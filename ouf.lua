@@ -16,12 +16,9 @@ end
 
 local function Enable(self)
 	local element = self.DeathTimer
-
 	if element then
 		self:RegisterEvent("UNIT_HEALTH", Update)
 		self:RegisterEvent("UNIT_HEALTH_FREQUENT", Update)
-		self:RegisterEvent("UNIT_MAXHEALTH", Update)
-
 		return true
 	end
 end
@@ -31,7 +28,6 @@ local function Disable(self)
 	if element then
 		self:UnregisterEvent("UNIT_HEALTH_FREQUENT", Update)
 		self:UnregisterEvent("UNIT_HEALTH", Update)
-		self:UnregisterEvent("UNIT_MAXHEALTH", Update)
 	end
 end
 
