@@ -38,26 +38,24 @@ eventFrame.elapsed1, eventFrame.elapsed2 = 0, 0
 eventFrame:SetScript("OnUpdate", function(self,elapsed)
 	self.elapsed1 = self.elapsed1 + elapsed
 	self.elapsed2 = self.elapsed2 + elapsed
-	if self.elapsed1 >= 0.5 then
+	if self.elapsed1 >= 0.3 then
 		for guid, healthChange in pairs(tobeAddedTbl) do
 			if not healthChangeTbl[guid] then healthChangeTbl[guid] = NewHealthTbl() end
 			local t = healthChangeTbl[guid]
-
-			-- 3 seconds max, start from x to 3 then from 0 to x-0.5
+			-- 3 seconds max, start from x to 3 then from 0 to x-0.3
 			local cur
 			if not t.cur then cur = 1
 			-- when not full, add one more and keep start at 1
 			else
 				cur = t.cur+1
-				if cur > 6 then cur = cur-6 end
+				if cur > 10 then cur = cur-10 end
 			end
-
 			t[cur] = healthChange
 			t.cur = cur
 			if healthChange ~= 0 then donotWipeTbl[guid] = true end
 			tobeAddedTbl[guid] = 0
 		end
-		self.elapsed1 = 0
+		self.elapsed1 = self.elapsed1 - 0.3
 	end
 	if self.elapsed2 >= 10 then
 		for guid in pairs(tobeAddedTbl) do if not donotWipeTbl[guid] then tobeAddedTbl[guid] = nil end end
