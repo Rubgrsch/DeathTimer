@@ -54,7 +54,7 @@ local function SetFramePoint(frame, pos)
 	previous = frame
 end
 
-local function newCheckBox(label, name, desc, pos, set)
+local function NewCheckBox(label, name, desc, pos, set)
 	local Name = addonName.."Config"..label
 	local check = CreateFrame("CheckButton", Name, configFrame, "InterfaceOptionsCheckButtonTemplate")
 	check:SetScript("OnShow", function(self) self:SetChecked(C.db[label]) end)
@@ -69,7 +69,7 @@ local function newCheckBox(label, name, desc, pos, set)
 	SetFramePoint(check, pos)
 end
 
-local function newSlider(label, name, desc, min, max, step, pos, set)
+local function NewSlider(label, name, desc, min, max, step, pos, set)
 	local Name = addonName.."Config"..label
 	local slider = CreateFrame("Slider",Name,configFrame,"OptionsSliderTemplate")
 	local text = slider:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
@@ -90,7 +90,7 @@ local function newSlider(label, name, desc, min, max, step, pos, set)
 	SetFramePoint(slider, pos)
 end
 
-local function newButton(name, desc, pos, func)
+local function NewButton(name, desc, pos, func)
 	local button = CreateFrame("Button", nil, configFrame, "UIPanelButtonTemplate")
 	button:SetText(name)
 	button.tooltipText = desc
@@ -109,7 +109,7 @@ local listBackdrop = {
 }
 local optBackdrop = {bgFile = "Interface\\ChatFrame\\ChatFrameBackground"}
 
-local function newDropdown(label, name, pos, tbl, set, isFont)
+local function NewDropdown(label, name, pos, tbl, set, isFont)
 	local f = CreateFrame("Button", nil, configFrame)
 	f:SetSize(150,25)
 	f:SetBackdrop(listBackdrop)
@@ -208,22 +208,22 @@ titleText:SetPoint("TOPLEFT", configFrame, "TOPLEFT", 200, -20)
 titleText:SetText(addonName.." "..GetAddOnMetadata(addonName, "Version"))
 
 dt:AddInitFunc(function()
-	newCheckBox("targetFrame", L["enableTargetFrame"], L["enableTargetFrameTooltips"], {"TOPLEFT", configFrame, "TOPLEFT", 16, -60},
+	NewCheckBox("targetFrame", L["enableTargetFrame"], L["enableTargetFrameTooltips"], {"TOPLEFT", configFrame, "TOPLEFT", 16, -60},
 		function(checked)
 			C.db.targetFrame = checked
 			C:SetTargetFrame()
 		end)
-	newDropdown("font",L["font"],-1,LSM:List("font"),
+	NewDropdown("font",L["font"],-1,LSM:List("font"),
 		function(chosen)
 			C.db.font = chosen
 			C:SetTargetFrame()
 		end,true)
-	newSlider("fontSize", L["fontSize"], nil, 9, 30, 1, 1,
+	NewSlider("fontSize", L["fontSize"], nil, 9, 30, 1, 1,
 		function(value)
 			C.db.fontSize = value
 			C:SetTargetFrame()
 		end)
-	newButton(L["mover"], L["moverTooltip"], 1,
+	NewButton(L["mover"], L["moverTooltip"], 1,
 		function()
 			InterfaceOptionsFrame:Hide()
 			HideUIPanel(GameMenuFrame)
@@ -231,8 +231,8 @@ dt:AddInitFunc(function()
 			print(L["moverMsg"])
 		end)
 	if ElvUI and ElvUI[1].private.nameplates.enable then
-		newCheckBox("ElvUINP_enabled", L["ElvUINP_enabled"], L["ElvUINP_enabledTooltips"], -1)
-		newDropdown("ElvUINP_font",L["ElvUINP_font"],-1,LSM:List("font"),nil,true)
-		newSlider("ElvUINP_fontSize", L["ElvUINP_fontSize"], nil, 9, 30, 1, 1)
+		NewCheckBox("ElvUINP_enabled", L["ElvUINP_enabled"], L["ElvUINP_enabledTooltips"], -1)
+		NewDropdown("ElvUINP_font",L["ElvUINP_font"],-1,LSM:List("font"),nil,true)
+		NewSlider("ElvUINP_fontSize", L["ElvUINP_fontSize"], nil, 9, 30, 1, 1)
 	end
 end)
