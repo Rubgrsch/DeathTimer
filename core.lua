@@ -1,7 +1,7 @@
 local _, dt = ...
-local C, L, G = unpack(dt)
+local _, _, G = unpack(dt)
 
-local band, CombatLogGetCurrentEventInfo, ipairs, next, pairs, UnitGUID, UnitHealth = bit.band, CombatLogGetCurrentEventInfo, ipairs, next, pairs, UnitGUID, UnitHealth
+local band, CombatLogGetCurrentEventInfo, ipairs, next, UnitGUID, UnitHealth = bit.band, CombatLogGetCurrentEventInfo, ipairs, next, UnitGUID, UnitHealth
 
 --Use [GUID] = {[time] = healthlost, cur = next_cur}
 local healthChangeTbl = {}
@@ -25,7 +25,7 @@ local function WipeTbl(parentTbl,idx)
 	local t = parentTbl[idx]
 	if not t then return end
 	parentTbl[idx] = nil
-	for k in pairs(t) do t[k] = nil end
+	for k in next, t do t[k] = nil end
 	reuseTbl[t] = true
 end
 
@@ -39,13 +39,12 @@ eventFrame:SetScript("OnUpdate", function(self,elapsed)
 	self.elapsed1 = self.elapsed1 + elapsed
 	self.elapsed2 = self.elapsed2 + elapsed
 	if self.elapsed1 >= 0.3 then
-		for guid, healthChange in pairs(tobeAddedTbl) do
+		for guid, healthChange in next, tobeAddedTbl do
 			if not healthChangeTbl[guid] then healthChangeTbl[guid] = NewHealthTbl() end
 			local t = healthChangeTbl[guid]
 			-- 3 seconds max, start from x to 3 then from 0 to x-0.3
 			local cur
 			if not t.cur then cur = 1
-			-- when not full, add one more and keep start at 1
 			else
 				cur = t.cur+1
 				if cur > 10 then cur = cur-10 end
@@ -58,9 +57,9 @@ eventFrame:SetScript("OnUpdate", function(self,elapsed)
 		self.elapsed1 = self.elapsed1 - 0.3
 	end
 	if self.elapsed2 >= 10 then
-		for guid in pairs(tobeAddedTbl) do if not donotWipeTbl[guid] then tobeAddedTbl[guid] = nil end end
-		for guid in pairs(healthChangeTbl) do if not donotWipeTbl[guid] then WipeTbl(healthChangeTbl,guid) end end
-		for guid in pairs(donotWipeTbl) do donotWipeTbl[guid] = nil end
+		for guid in next, tobeAddedTbl do if not donotWipeTbl[guid] then tobeAddedTbl[guid] = nil end end
+		for guid in next, healthChangeTbl do if not donotWipeTbl[guid] then WipeTbl(healthChangeTbl,guid) end end
+		for guid in next, donotWipeTbl do donotWipeTbl[guid] = nil end
 		self.elapsed2 = 0
 	end
 end)
@@ -84,7 +83,7 @@ function G.GetDeathTime(unit)
 	for _, change in ipairs(healthChangeTbl[guid]) do
 		sum = sum + change
 	end
-	local time = health/(- sum / 3)
+	local time = health / (sum / -3)
 	if time <= 0 then return
 	else return time end
 end
