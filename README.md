@@ -8,7 +8,6 @@ This addon currently has:
 * Basic config GUI
 * ElvUI NP support
 
-Changing target will give new time immediately.  
 PvP target or bosses with special mechanisms may give wrong result.  
 
 # Thanks
