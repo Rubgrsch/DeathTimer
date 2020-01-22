@@ -79,13 +79,14 @@ function G.GetDeathTime(unit)
 	if not unit then unit = "target" end
 	local guid, health = UnitGUID(unit), UnitHealth(unit)
 	if not guid or not healthChangeTbl[guid] then return end
-	local sum = 0
+	local sum, times = 0, 0
 	for _, change in ipairs(healthChangeTbl[guid]) do
 		sum = sum + change
+		times = times + 1
 	end
-	local time = health / (sum / -3)
-	if time <= 0 then return
-	else return time end
+	local deathtime = health / (sum / (times * -0.3))
+	if deathtime <= 0 then return
+	else return deathtime end
 end
 
 dt:AddInitFunc(function()
