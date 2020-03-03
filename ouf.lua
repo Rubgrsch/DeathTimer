@@ -1,7 +1,7 @@
 local _, dt = ...
 local C, _, G = unpack(dt)
 
-local oUF = oUF or ElvUI.oUF
+local oUF = oUF or (ElvUI and ElvUI.oUF)
 if not oUF then return end
 local GetDeathTime = G.GetDeathTime
 
