@@ -40,7 +40,7 @@ local timeFormats = {
 	[3] = "01:07",
 }
 C.timeFormatFuncs = {
-	["67.8"] = function(time) return "%.1f",time end,
+	["67.3"] = function(time) return "%.1f",time end,
 	["67"] = function(time) return "%.0f", time end,
 	["01:07"] = function(time) return "%02d:%02d", floor(time/60), time%60 end,
 }
