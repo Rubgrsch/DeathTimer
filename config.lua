@@ -2,12 +2,13 @@ local addonName, dt = ...
 local C, L = unpack(dt)
 
 local _G = _G
-local type, next, unpack, pairs, ipairs = type, next, unpack, pairs, ipairs
+local type, next, unpack, pairs, ipairs, floor = type, next, unpack, pairs, ipairs, math.floor
 local PlaySound = PlaySound
 local LSM = LibStub("LibSharedMedia-3.0")
 
 local defaults = {
 	["targetFrame"] = true,
+	["timeFormat"] = "67.3",
 	["fontSize"] = 14,
 	["font"] = LSM:List("font")[1],
 	["mover"] = {
@@ -31,6 +32,18 @@ dt:AddInitFunc(function()
 	copyTable(defaults,C.db)
 	for k in pairs(C.db) do if defaults[k] == nil then C.db[k] = nil end end -- remove old keys
 end)
+
+-- Time Format
+local timeFormats = {
+	[1] = "67.3",
+	[2] = "67",
+	[3] = "01:07",
+}
+C.timeFormatFuncs = {
+	["67.8"] = function(time) return "%.1f",time end,
+	["67"] = function(time) return "%.0f", time end,
+	["01:07"] = function(time) return "%02d:%02d", floor(time/60), time%60 end,
+}
 
 -- GUI Template --
 local configFrame = CreateFrame("Frame", nil, InterfaceOptionsFramePanelContainer)
@@ -235,6 +248,8 @@ dt:AddInitFunc(function()
 			for _,mover in pairs(C.mover) do mover:Show() end
 			print(L["moverMsg"])
 		end)
+	NewDropdown("timeFormat", L["timeFormat"], 1, timeFormats,
+		nil,nil)
 	if ElvUI and ElvUI[1].private.nameplates.enable then
 		NewCheckBox("ElvUINP_enabled", L["ElvUINP_enabled"], L["ElvUINP_enabledTooltips"], -1)
 		NewDropdown("ElvUINP_font",L["ElvUINP_font"],-1,LSM:List("font"),nil,true)

@@ -69,7 +69,7 @@ end
 function C:UpdateTargetText()
 	local time = G.GetDeathTime()
 	if time then
-		text:SetFormattedText("%.1f",time)
+		text:SetFormattedText(C.timeFormatFuncs[C.db.timeFormat](time))
 	else
 		text:SetText("")
 	end
