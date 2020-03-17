@@ -231,6 +231,13 @@ dt:AddInitFunc(function()
 			C.db.targetFrame = checked
 			C:SetTargetFrame()
 		end)
+	NewButton(L["mover"], L["moverTooltip"], 1,
+		function()
+			InterfaceOptionsFrame:Hide()
+			HideUIPanel(GameMenuFrame)
+			for _,mover in pairs(C.mover) do mover:Show() end
+			print(L["moverMsg"])
+		end)
 	NewDropdown("font",L["font"],-1,LSM:List("font"),
 		function(chosen)
 			C.db.font = chosen
@@ -241,17 +248,10 @@ dt:AddInitFunc(function()
 			C.db.fontSize = value
 			C:SetTargetFrame()
 		end)
-	NewButton(L["mover"], L["moverTooltip"], 1,
-		function()
-			InterfaceOptionsFrame:Hide()
-			HideUIPanel(GameMenuFrame)
-			for _,mover in pairs(C.mover) do mover:Show() end
-			print(L["moverMsg"])
-		end)
 	NewDropdown("timeFormat", L["timeFormat"], 1, timeFormats,
 		nil,nil)
 	if ElvUI and ElvUI[1].private.nameplates.enable then
-		NewCheckBox("ElvUINP_enabled", L["ElvUINP_enabled"], L["ElvUINP_enabledTooltips"], -1)
+		NewCheckBox("ElvUINP_enabled", L["ElvUINP_enabled"], L["ElvUINP_enabledTooltips"], -1.5)
 		NewDropdown("ElvUINP_font",L["ElvUINP_font"],-1,LSM:List("font"),nil,true)
 		NewSlider("ElvUINP_fontSize", L["ElvUINP_fontSize"], nil, 9, 30, 1, 1)
 	end
